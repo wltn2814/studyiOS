@@ -359,4 +359,82 @@ class Puppy {
     var name: String
     var owner: PersonC!
     
+    init(name: String){
+        self.name = name
+    }
+    
+    func goOut(){
+        print("\(name)가 주인 \(owner.name)와 산책을 합니다")
+    }
 }
+
+let happy:Puppy = Puppy(name: "happy")
+// 강아지는 주인없이 산책하면 안돼요!
+// happy.goOut() // 주인이 없는 상태라 오류 발생
+happy.owner = sun
+happy.goOut()
+
+// 2-2. 실패 가능한 이니셜라이저
+// 이니셜라이저 매개변수로 전달되는 초기값이 잘못된 경우 인스턴스 생성에 실패할 수 있음
+// 인스턴스 생성에 실패하면 nil을 반환
+// init?을 사용
+
+class PersonD{
+    var name: String
+    var age: Int
+    var nickName: String?
+    
+    init?(name: String, age: Int){
+        if(0...120).contains(age) == false {
+            return nil
+        }
+        
+//        if name.characters.count == 0{   // 강의랑 다름
+        if name.count == 0{
+            return nil
+        }
+        
+        self.name = name
+        self.age = age
+    }
+}
+
+//let john: PersonD = PersonD(name: "john", age: 23)
+let john: PersonD? = PersonD(name: "john", age: 23)
+let joker: PersonD? = PersonD(name: "joker", age: 123)
+let batman: PersonD? = PersonD(name: "", age: 10)
+
+print(joker)
+print(batman)
+
+// 3. 디이니셜라이저(deinitializer)
+// deinit은 클래스의 인스턴스가 메모리에서 해제되는 시점에 호출
+// 인스턴스가 해제되는 시점에 해야할 일을 구현할 수 있음
+// deinit은 매개변수를 지닐 수 없음
+// 자동으로 호출되므로 직접 호출할 수 없음
+// 디이니셜라이저는 클래스 타입에만 구현할 수 있음
+// 인스턴스가 메모리에서 해제되는 시점은 ARC(Automatic Reference Counting)의 규칙에 따라 결정됩니다.
+
+class PersonE{
+    var name: String
+    var pet: Puppy?
+    var child: PersonC
+    
+    init(name: String, child: PersonC){
+        self.name = name
+        self.child = child
+    }
+    
+    // 인스턴스가 메모리에서 해제되는 시점에 자동 호출
+    deinit {
+        if let petName = pet?.name {
+            print("\(name)가 \(child.name)에게 \(petName)를 인도합니다")
+            self.pet?.owner = child
+        }
+    }
+}
+
+var donald: PersonE? = PersonE(name:"donald", child:sun)
+donald?.pet = happy
+donald = nil // donald 인스턴스가 더이상 필요없으므로 메모리에서 해제
+// donald가 jenny에게 happy를 인도
